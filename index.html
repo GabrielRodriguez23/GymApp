@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gym Tracker App</title>
+    <title>Gym Tracker</title>
     
-    <!-- PWA MANIFEST (Incrustado para instalación) -->
+    <!-- PWA MANIFEST -->
     <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"Gym Tracker","short_name":"GymTracker","start_url":".","display":"standalone","background_color":"#ffffff","theme_color":"#4f46e5","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2964/2964514.png","sizes":"512x512","type":"image/png"}]}'>
 
-    <!-- Configuración iOS (Safari) -->
+    <!-- Configuración iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GymTracker">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2964/2964514.png">
 
     <!-- Tailwind CSS -->
@@ -28,7 +27,6 @@
         input:focus, select:focus, textarea:focus { outline: 2px solid #4f46e5; outline-offset: -1px; }
         .sortable-ghost { opacity: 0.4; background-color: #e0e7ff; }
         .drag-handle { cursor: grab; touch-action: none; }
-        /* Ajuste para Notch en iPhone */
         body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
@@ -48,17 +46,29 @@
                     <button onclick="window.toggleMenu()" class="p-2 rounded-full hover:bg-gray-100 text-gray-500">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
                     </button>
-                    <div id="app-menu" class="hidden absolute right-0 top-10 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
+                    <div id="app-menu" class="hidden absolute right-0 top-10 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
                         <button onclick="window.toggleFullScreen()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-50">
                             <span>⛶</span> Pantalla Completa
                         </button>
+                        
+                        <!-- Sección Copias de Seguridad (Principal) -->
+                        <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-gray-100">Tus Datos</div>
+
                         <button onclick="window.downloadBackup()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                             <span>📥</span> Guardar Copia (Backup)
                         </button>
-                        <label class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 cursor-pointer border-t border-gray-100">
+                        <label class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 cursor-pointer">
                             <span>📤</span> Restaurar Copia
                             <input type="file" id="restore-file" onchange="window.restoreBackup(event)" class="hidden" accept=".json">
                         </label>
+
+                        <!-- Sección Importar (Secundaria/Opcional) -->
+                        <div class="border-t border-gray-100 mt-1">
+                             <label class="w-full text-left px-4 py-3 text-xs text-gray-500 hover:bg-gray-50 flex items-center gap-2 cursor-pointer">
+                                <span>📄</span> Importar desde Excel/CSV
+                                <input type="file" id="import-csv-file" onchange="window.handleCSVImport(event)" class="hidden" accept=".csv,.txt">
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -240,6 +250,86 @@
         };
 
         window.saveData = function() { localStorage.setItem(APP_KEY, JSON.stringify(appData)); };
+
+        // --- LÓGICA DE IMPORTACIÓN CSV (Opcional/Oculta) ---
+        window.handleCSVImport = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const text = evt.target.result;
+                    const fileName = file.name.replace('.csv', '').replace('.txt', '') || 'Rutina Importada';
+                    
+                    const now = Date.now();
+                    const newProgId = 'p_imp_' + now;
+                    const newDays = [];
+                    let currentDayObj = null;
+                    let dateColumnMap = {};
+
+                    const lines = text.split(/\r?\n/);
+                    
+                    lines.forEach(line => {
+                        const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
+                        
+                        if (cols[0] && cols[0].toUpperCase().includes('DIA')) {
+                            if (currentDayObj) newDays.push(currentDayObj);
+                            currentDayObj = {
+                                id: 'd_' + Date.now() + Math.floor(Math.random()*1000),
+                                name: cols[0],
+                                createdAt: Date.now(),
+                                exercises: []
+                            };
+                            return; 
+                        }
+
+                        if (cols[0] === 'Ejercicio' && cols.length > 3) {
+                            dateColumnMap = {};
+                            for (let i = 3; i < cols.length; i++) {
+                                if (cols[i]) dateColumnMap[i] = cols[i];
+                            }
+                            return;
+                        }
+
+                        if (currentDayObj && cols[0] && cols[0] !== 'Ejercicio' && !cols[0].toUpperCase().includes('DIA')) {
+                            const exName = cols[0];
+                            const sets = cols[1] || '';
+                            const reps = cols[2] || '';
+                            const exId = 'e_' + Date.now() + Math.floor(Math.random()*10000);
+                            const history = {};
+
+                            Object.keys(dateColumnMap).forEach(colIdx => {
+                                const val = cols[colIdx];
+                                const dateKey = dateColumnMap[colIdx];
+                                if (val && val.trim() !== '') {
+                                    history[dateKey] = { weight: val.replace(/^"|"$/g, ''), note: '' };
+                                }
+                            });
+
+                            currentDayObj.exercises.push({ id: exId, name: exName, sets: sets, reps: reps, helpText: '', history: history });
+                        }
+                    });
+
+                    if (currentDayObj) newDays.push(currentDayObj);
+
+                    if (newDays.length > 0) {
+                        appData.programs.unshift({ id: newProgId, name: fileName, isActive: true, createdAt: now });
+                        appData.days[newProgId] = newDays;
+                        window.saveData();
+                        window.showToast("Rutina importada con éxito");
+                        window.switchProgram(newProgId, true);
+                        window.toggleMenu();
+                    } else {
+                        alert("No se detectaron días válidos.");
+                    }
+                } catch (err) {
+                    alert("Error al leer archivo.");
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        };
 
         window.switchProgram = function(id, setAsActive = false) {
             currentProgramId = id;
@@ -518,6 +608,7 @@
         window.closeEditModal = () => document.getElementById('edit-exercise-modal').classList.add('hidden');
         window.saveEditedExercise = () => { const ex = window.getCurrentDay()?.exercises.find(e => e.id === currentEditingExId); if(ex) { ex.name = document.getElementById('edit-exercise-name').value; ex.sets = document.getElementById('edit-sets').value; ex.reps = document.getElementById('edit-reps').value; ex.helpText = document.getElementById('edit-help-text').value; window.saveData(); window.closeEditModal(); window.renderRoutine(); }};
         window.initiateDelete = (id) => { window.showConfirm("¿Eliminar ejercicio?", (y) => { if(y) { const d = window.getCurrentDay(); d.exercises = d.exercises.filter(e => e.id !== id); window.saveData(); window.renderRoutine(); }}); };
+        window.deleteHistoryItem = (id, dt) => { const ex = window.getCurrentDay().exercises.find(e => e.id === id); if(ex) { delete ex.history[dt]; window.saveData(); window.renderHistoryModal(id); window.renderRoutine(); }};
         window.toggleHelpText = (id) => document.getElementById('help-text-'+id).classList.toggle('hidden');
         window.reorderExercises = () => { const list = document.getElementById('routine-list'); if(!list) return; const ids = Array.from(list.children).map(c => c.dataset.id); window.getCurrentDay().exercises.sort((a,b) => ids.indexOf(a.id) - ids.indexOf(b.id)); window.saveData(); };
         window.showConfirm = (msg, cb) => { confirmCallback = cb; document.getElementById('confirm-message').textContent = msg; document.getElementById('confirm-modal').classList.remove('hidden'); };
@@ -543,4 +634,4 @@
         window.init();
     </script>
 </body>
-</html>
+</html> 
