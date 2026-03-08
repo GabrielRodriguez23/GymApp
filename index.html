@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Gym Tracker</title>
-
+    
     <!-- PWA MANIFEST -->
     <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"Gym Tracker","short_name":"GymTracker","start_url":".","display":"standalone","background_color":"#ffffff","theme_color":"#4f46e5","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2964/2964514.png","sizes":"512x512","type":"image/png"}]}'>
 
@@ -15,10 +15,10 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
+    
     <!-- SortableJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+    
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -27,22 +27,21 @@
         input:focus, select:focus, textarea:focus { outline: 2px solid #4f46e5; outline-offset: -1px; }
         .sortable-ghost { opacity: 0.4; background-color: #e0e7ff; }
         .drag-handle { cursor: grab; touch-action: none; }
-        .hidden { display: none !important; }
         body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen pb-6 select-none text-gray-800">
 
     <div class="max-w-md mx-auto min-h-screen flex flex-col bg-gray-50 shadow-2xl overflow-hidden sm:rounded-xl sm:my-4 sm:min-h-0 sm:h-[90vh]">
-
+        
         <!-- Header -->
         <header class="bg-white p-4 pb-2 shadow-sm z-10">
             <div class="flex justify-between items-center mb-4">
                 <h1 class="text-xl font-black text-gray-900 flex items-center tracking-tight">
-                    <span class="bg-indigo-600 text-white p-1.5 rounded-lg mr-2 text-lg shadow">💪</span>
+                    <span class="bg-indigo-600 text-white p-1.5 rounded-lg mr-2 text-lg shadow">💪</span> 
                     GYM TRACKER
                 </h1>
-
+                
                 <div class="relative">
                     <button onclick="window.toggleMenu()" class="p-2 rounded-full hover:bg-gray-100 text-gray-500">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
@@ -51,15 +50,7 @@
                         <button onclick="window.toggleFullScreen()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-50">
                             <span>⛶</span> Pantalla Completa
                         </button>
-
-                        <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-y border-gray-100">Rutina Actual</div>
-                        <button onclick="window.editCurrentProgramName()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <span>✏️</span> Editar nombre de rutina
-                        </button>
-                        <button onclick="window.cloneCurrentProgram()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-50">
-                            <span>🧬</span> Clonar rutina
-                        </button>
-
+                        
                         <!-- Sección Copias de Seguridad (Principal) -->
                         <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-gray-100">Tus Datos</div>
 
@@ -167,7 +158,7 @@
             </div>
         </div>
     </div>
-
+    
     <div id="history-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-6">
         <div class="bg-white w-full sm:max-w-xs h-[70vh] sm:rounded-2xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden">
             <div class="p-5 border-b flex justify-between items-center bg-gray-50">
@@ -217,26 +208,26 @@
             window.toggleMenu();
         };
 
-        window.getHistoryWeight = function(v) {
+        window.getHistoryWeight = function(v) { 
             if(!v) return null;
             if(Array.isArray(v)) {
                 const last = v[v.length - 1];
                 return last.weight || '';
             }
             if(typeof v === 'object') return v.weight || '';
-            return v;
+            return v; 
         };
-        window.getHistoryNote = function(v) {
+        window.getHistoryNote = function(v) { 
             if(Array.isArray(v)) {
                 const last = v[v.length - 1];
                 return last.note || '';
             }
-            return (v && typeof v === 'object') ? v.note : '';
+            return (v && typeof v === 'object') ? v.note : ''; 
         };
-        window.formatDate = function(ts) {
-            if(!ts) return '';
-            const d = new Date(ts);
-            return `(${d.getDate()}/${d.getMonth()+1})`;
+        window.formatDate = function(ts) { 
+            if(!ts) return ''; 
+            const d = new Date(ts); 
+            return `(${d.getDate()}/${d.getMonth()+1})`; 
         };
 
         window.loadData = function() {
@@ -270,7 +261,7 @@
                 try {
                     const text = evt.target.result;
                     const fileName = file.name.replace('.csv', '').replace('.txt', '') || 'Rutina Importada';
-
+                    
                     const now = Date.now();
                     const newProgId = 'p_imp_' + now;
                     const newDays = [];
@@ -278,10 +269,10 @@
                     let dateColumnMap = {};
 
                     const lines = text.split(/\r?\n/);
-
+                    
                     lines.forEach(line => {
                         const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
-
+                        
                         if (cols[0] && cols[0].toUpperCase().includes('DIA')) {
                             if (currentDayObj) newDays.push(currentDayObj);
                             currentDayObj = {
@@ -290,7 +281,7 @@
                                 createdAt: Date.now(),
                                 exercises: []
                             };
-                            return;
+                            return; 
                         }
 
                         if (cols[0] === 'Ejercicio' && cols.length > 3) {
@@ -398,7 +389,7 @@
 
             const day = window.getCurrentDay();
             const today = new Date().toISOString().split('T')[0];
-
+            
             titleDisplay.textContent = day ? day.name : "Sin Días";
             list.innerHTML = '';
             if (!day) return;
@@ -411,16 +402,16 @@
                 const dates = Object.keys(ex.history || {}).sort((a,b) => new Date(b) - new Date(a));
                 const latestDate = dates.length > 0 ? dates[0] : null;
                 const latestEntry = latestDate ? ex.history[latestDate] : null;
-                const latestWeight = window.getHistoryWeight(latestEntry) || '';
+                const latestWeight = window.getHistoryWeight(latestEntry) || ''; 
                 const latestDateFmt = latestDate ? latestDate.split('-').slice(1).reverse().join('/') : '';
                 const hasHelp = ex.helpText && ex.helpText.trim().length > 0;
-
+                
                 const div = document.createElement('div');
                 div.setAttribute('data-id', ex.id);
                 div.className = 'bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative group';
-
-                const prevHtml = (latestWeight && latestWeight.trim() !== '')
-                    ? `<div class="mt-2 inline-flex items-center bg-gray-100 px-2 py-1 rounded-md border border-gray-200"><span class="text-xs text-gray-500 font-bold mr-1">PREV:</span><span class="text-sm font-black text-gray-700">${latestWeight}</span><span class="text-[10px] text-gray-400 ml-1">(${latestDateFmt})</span></div>`
+                
+                const prevHtml = (latestWeight && latestWeight.trim() !== '') 
+                    ? `<div class="mt-2 inline-flex items-center bg-gray-100 px-2 py-1 rounded-md border border-gray-200"><span class="text-xs text-gray-500 font-bold mr-1">PREV:</span><span class="text-sm font-black text-gray-700">${latestWeight}</span><span class="text-[10px] text-gray-400 ml-1">(${latestDateFmt})</span></div>` 
                     : '';
 
                 div.innerHTML = `
@@ -448,7 +439,7 @@
                 `;
                 list.appendChild(div);
             });
-
+            
             if (typeof Sortable !== 'undefined') {
                 sortableInstance = new Sortable(list, { handle: '.drag-handle', animation: 150, onEnd: window.reorderExercises });
             }
@@ -463,16 +454,16 @@
             let val = inW.value.trim();
             const note = inN.value.trim();
             const today = new Date().toISOString().split('T')[0];
-
+            
             if (val && /^[0-9]+([.,][0-9]+)?$/.test(val)) val += " kg";
-
+            
             if (!val && !note) {
                 if (ex.history && ex.history[today] && !Array.isArray(ex.history[today])) {
-                    window.showConfirm("¿Eliminar registro de hoy?", (yes) => {
-                        if(yes) {
-                            delete ex.history[today];
-                            window.saveData();
-                            window.renderRoutine();
+                    window.showConfirm("¿Eliminar registro de hoy?", (yes) => { 
+                        if(yes) { 
+                            delete ex.history[today]; 
+                            window.saveData(); 
+                            window.renderRoutine(); 
                         }
                     });
                 }
@@ -509,9 +500,9 @@
             const btn = container ? container.querySelector('button') : null;
             if(btn) {
                 btn.classList.add('bg-green-500', 'scale-110');
-                setTimeout(() => {
-                    btn.classList.remove('bg-green-500', 'scale-110');
-                    window.renderRoutine();
+                setTimeout(() => { 
+                    btn.classList.remove('bg-green-500', 'scale-110'); 
+                    window.renderRoutine(); 
                 }, 800);
             }
             window.saveData();
@@ -523,20 +514,20 @@
             document.getElementById('history-title').textContent = ex.name;
             const content = document.getElementById('history-content');
             content.innerHTML = '';
-
+            
             const dates = Object.keys(ex.history || {}).sort((a,b) => new Date(b) - new Date(a));
-
+            
             if (dates.length === 0) content.innerHTML = '<p class="p-6 text-gray-400 text-center">Sin historial</p>';
             else dates.forEach(d => {
                 let rawEntry = ex.history[d];
                 let entries = Array.isArray(rawEntry) ? rawEntry : [rawEntry];
                 const reversedEntries = [...entries].reverse();
-
+                
                 reversedEntries.forEach((entry, idx) => {
                     const originalIdx = entries.length - 1 - idx;
                     const isMulti = entries.length > 1;
                     const indexLabel = isMulti ? ` #${entries.length - idx}` : '';
-
+                    
                     const div = document.createElement('div');
                     div.className = "p-4 border-b flex justify-between items-center";
                     div.innerHTML = `
@@ -604,58 +595,6 @@
         window.getCurrentDay = () => (currentProgramId && currentDayId) ? appData.days[currentProgramId]?.find(d => d.id === currentDayId) : null;
         window.handleProgramChange = (e) => window.switchProgram(e.target.value);
         window.toggleMenu = () => document.getElementById('app-menu').classList.toggle('hidden');
-
-        window.editCurrentProgramName = () => {
-            const program = appData.programs.find(p => p.id === currentProgramId);
-            if (!program) return;
-            const nextName = prompt('Editar nombre de rutina', program.name);
-            if (nextName === null) {
-                window.toggleMenu();
-                return;
-            }
-            const trimmed = nextName.trim();
-            if (!trimmed) {
-                alert('El nombre no puede estar vacío');
-                return;
-            }
-            program.name = trimmed;
-            window.saveData();
-            window.renderProgramSelector();
-            window.toggleMenu();
-            window.showToast('Nombre de rutina actualizado');
-        };
-
-        window.cloneCurrentProgram = () => {
-            const sourceProgram = appData.programs.find(p => p.id === currentProgramId);
-            if (!sourceProgram) return;
-
-            const sourceDays = appData.days[currentProgramId] || [];
-            const now = Date.now();
-            const cloneId = 'p_' + now;
-            const cloneDays = sourceDays.map((day, dayIndex) => ({
-                ...day,
-                id: `d_${now}_${dayIndex}`,
-                createdAt: now + dayIndex,
-                exercises: (day.exercises || []).map((exercise, exerciseIndex) => ({
-                    ...exercise,
-                    id: `e_${now}_${dayIndex}_${exerciseIndex}`,
-                    history: JSON.parse(JSON.stringify(exercise.history || {}))
-                }))
-            }));
-
-            appData.programs.forEach(p => p.isActive = false);
-            appData.programs.unshift({
-                id: cloneId,
-                name: `${sourceProgram.name} (copia)`,
-                isActive: true,
-                createdAt: now
-            });
-            appData.days[cloneId] = cloneDays;
-            window.saveData();
-            window.switchProgram(cloneId, true);
-            window.toggleMenu();
-            window.showToast('Rutina clonada');
-        };
         window.closeHistoryModal = () => document.getElementById('history-modal').classList.add('hidden');
         window.openNewProgramModal = () => document.getElementById('new-program-modal').classList.remove('hidden');
         window.closeNewProgramModal = () => document.getElementById('new-program-modal').classList.add('hidden');
@@ -673,36 +612,25 @@
         window.toggleHelpText = (id) => document.getElementById('help-text-'+id).classList.toggle('hidden');
         window.reorderExercises = () => { const list = document.getElementById('routine-list'); if(!list) return; const ids = Array.from(list.children).map(c => c.dataset.id); window.getCurrentDay().exercises.sort((a,b) => ids.indexOf(a.id) - ids.indexOf(b.id)); window.saveData(); };
         window.showConfirm = (msg, cb) => { confirmCallback = cb; document.getElementById('confirm-message').textContent = msg; document.getElementById('confirm-modal').classList.remove('hidden'); };
-
+        
         const initConfirmEvents = () => {
             const yes = document.getElementById('confirm-yes');
             const no = document.getElementById('confirm-no');
             if(yes) yes.onclick = () => { document.getElementById('confirm-modal').classList.add('hidden'); if(confirmCallback) confirmCallback(true); };
             if(no) no.onclick = () => { document.getElementById('confirm-modal').classList.add('hidden'); if(confirmCallback) confirmCallback(false); };
         };
-
+        
         window.setProgramActive = () => window.switchProgram(currentProgramId, true);
         window.downloadBackup = () => { const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData)); const a = document.createElement('a'); a.href = data; a.download = "backup.json"; a.click(); };
         window.restoreBackup = (e) => { const f = e.target.files[0]; const r = new FileReader(); r.onload = (ev) => { try { appData = JSON.parse(ev.target.result); window.saveData(); location.reload(); } catch(err){ alert("Error al restaurar"); } }; r.readAsText(f); };
         window.showToast = (msg) => { const c = document.getElementById('toast-container'); if(!c) return; const e = document.createElement('div'); e.className = 'bg-gray-900 text-white text-xs px-4 py-2 rounded-full shadow-xl mb-2 opacity-100 transition-opacity duration-300'; e.textContent = msg; c.appendChild(e); setTimeout(() => { e.classList.add('opacity-0'); setTimeout(() => e.remove(), 300); }, 2000); };
 
-        window.hideLoader = () => {
-            const loader = document.getElementById('app-loader');
-            if (!loader) return;
-            loader.classList.add('hidden');
-            loader.style.display = 'none';
-        };
-
-        window.init = function() {
-            window.loadData();
+        window.init = function() { 
+            window.loadData(); 
             initConfirmEvents();
-            window.hideLoader();
+            document.getElementById('app-loader').classList.add('hidden'); 
         };
-
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(window.hideLoader, 1200);
-        });
-
+        
         window.init();
     </script>
 </body>
