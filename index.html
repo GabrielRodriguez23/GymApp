@@ -27,6 +27,7 @@
         input:focus, select:focus, textarea:focus { outline: 2px solid #4f46e5; outline-offset: -1px; }
         .sortable-ghost { opacity: 0.4; background-color: #e0e7ff; }
         .drag-handle { cursor: grab; touch-action: none; }
+        .hidden { display: none !important; }
         body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
@@ -685,11 +686,22 @@
         window.restoreBackup = (e) => { const f = e.target.files[0]; const r = new FileReader(); r.onload = (ev) => { try { appData = JSON.parse(ev.target.result); window.saveData(); location.reload(); } catch(err){ alert("Error al restaurar"); } }; r.readAsText(f); };
         window.showToast = (msg) => { const c = document.getElementById('toast-container'); if(!c) return; const e = document.createElement('div'); e.className = 'bg-gray-900 text-white text-xs px-4 py-2 rounded-full shadow-xl mb-2 opacity-100 transition-opacity duration-300'; e.textContent = msg; c.appendChild(e); setTimeout(() => { e.classList.add('opacity-0'); setTimeout(() => e.remove(), 300); }, 2000); };
 
+        window.hideLoader = () => {
+            const loader = document.getElementById('app-loader');
+            if (!loader) return;
+            loader.classList.add('hidden');
+            loader.style.display = 'none';
+        };
+
         window.init = function() {
             window.loadData();
             initConfirmEvents();
-            document.getElementById('app-loader').classList.add('hidden');
+            window.hideLoader();
         };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(window.hideLoader, 1200);
+        });
 
         window.init();
     </script>
