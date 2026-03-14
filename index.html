@@ -53,9 +53,6 @@
                             <span>⛶</span> Pantalla Completa
                         </button>
                         <div class="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-y border-gray-100">Rutina Actual</div>
-                        <button onclick="window.editCurrentProgramName()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <span>✏️</span> Editar nombre de rutina
-                        </button>
                         <button onclick="window.cloneCurrentProgram()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-50">
                             <span>🧬</span> Clonar rutina
                         </button>
@@ -72,7 +69,8 @@
 
             <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
                 <div class="flex items-center justify-between gap-2 mb-1">
-                    <button id="program-name-display" onclick="window.editCurrentProgramName(false)" class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider hover:text-indigo-600 transition-colors">Tu Rutina</button>
+                    <span id="program-name-display" onclick="window.editProgramName()" class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors">Tu Rutina</span>
+                    <input type="text" id="program-name-input" onblur="window.saveProgramName()" onkeydown="window.handleProgramNameKeypress(event)" class="hidden text-[10px] font-bold uppercase tracking-wider bg-transparent border-b border-indigo-600 focus:outline-none text-gray-700" />
                     <div id="active-status-container" class="flex items-center">
                         <span id="badge-active" class="hidden bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-yellow-200 flex items-center gap-1">⭐ ACTIVA</span>
                         <button id="btn-make-active" onclick="window.setProgramActive()" class="hidden bg-gray-200 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full hover:bg-gray-300">Marcar Activa</button>
@@ -272,7 +270,10 @@
             const currentProgram = appData.programs.find(p => p.id === currentProgramId);
             const act = currentProgram?.isActive;
             const programNameDisplay = document.getElementById('program-name-display');
-            if (programNameDisplay) programNameDisplay.textContent = currentProgram?.name || 'Tu Rutina';
+            const programNameInput = document.getElementById('program-name-input');
+            const programName = currentProgram?.name || 'Tu Rutina';
+            if (programNameDisplay) programNameDisplay.textContent = programName;
+            if (programNameInput) programNameInput.value = programName;
             document.getElementById('badge-active').classList.toggle('hidden', !act);
             document.getElementById('btn-make-active').classList.toggle('hidden', !!act);
         };
@@ -516,24 +517,40 @@
         window.handleProgramChange = (e) => window.switchProgram(e.target.value);
         window.toggleMenu = () => document.getElementById('app-menu').classList.toggle('hidden');
 
-        window.editCurrentProgramName = (closeMenu = true) => {
+        window.editProgramName = () => {
             const program = appData.programs.find(p => p.id === currentProgramId);
-            if (!program) return;
-            const nextName = prompt('Editar nombre de rutina', program.name);
-            if (nextName === null) {
-                if (closeMenu) window.toggleMenu();
-                return;
+            const display = document.getElementById('program-name-display');
+            const input = document.getElementById('program-name-input');
+            if (!program || !display || !input) return;
+            input.value = program.name || display.textContent;
+            display.classList.add('hidden');
+            input.classList.remove('hidden');
+            input.focus();
+            input.select();
+        };
+
+        window.saveProgramName = () => {
+            const program = appData.programs.find(p => p.id === currentProgramId);
+            const display = document.getElementById('program-name-display');
+            const input = document.getElementById('program-name-input');
+            if (!program || !display || !input) return;
+
+            const nextName = input.value.trim();
+            if (nextName) {
+                program.name = nextName;
+                window.saveData();
+                window.renderProgramSelector();
+                window.showToast('Nombre de rutina actualizado');
+            } else {
+                input.value = program.name;
             }
-            const trimmed = nextName.trim();
-            if (!trimmed) {
-                alert('El nombre no puede estar vacío');
-                return;
-            }
-            program.name = trimmed;
-            window.saveData();
-            window.renderProgramSelector();
-            if (closeMenu) window.toggleMenu();
-            window.showToast('Nombre de rutina actualizado');
+
+            display.classList.remove('hidden');
+            input.classList.add('hidden');
+        };
+
+        window.handleProgramNameKeypress = (e) => {
+            if (e.key === 'Enter') window.saveProgramName();
         };
 
         window.cloneCurrentProgram = () => {
